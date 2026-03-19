@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --background: #000000;
+    --foreground: #ffffff;
+}
+
+body {
+    color: var(--foreground);
+    background: var(--background);
+    font-family: var(--font-jetbrains-mono), monospace;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+    background: #ffffff;
+    color: #000000;
+}
+
+.ascii-text {
+    white-space: pre;
+    line-height: 1.1;
+    letter-spacing: 0.1em;
+}
+
+.crt::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 50;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+}
+
+.brutalist-border {
+    border: 1px solid #ffffff;
+    box-shadow: 4px 4px 0 0 #ffffff;
+    transition: all 0.2s ease;
+}
+
+.brutalist-button {
+    border: 1px solid #ffffff;
+    background: #000000;
+    color: #ffffff;
+    text-transform: uppercase;
+    font-weight: bold;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.1s;
+}
+
+.brutalist-button:hover {
+    background: #ffffff;
+    color: #000000;
+}
+
+.brutalist-button:active {
+    transform: translate(2px, 2px);
+}
