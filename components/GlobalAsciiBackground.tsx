@@ -105,14 +105,12 @@ export default function GlobalAsciiBackground() {
         window.addEventListener('resize', resize);
         resize();
 
-        const ctxAscii = asciiCanvas.getContext('2d', { willReadFrequently: true });
-        if (!ctxAscii) return;
-
-        const tempCanvas = document.createElement('canvas');
-        const tctx = tempCanvas.getContext('2d');
-
-        let animationFrameId: number;
-        let startTime = Date.now();
+        const mouse = new THREE.Vector2(-999, -999);
+        const onMouseMove = (e: MouseEvent) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        };
+        window.addEventListener('mousemove', onMouseMove);
 
         const render = () => {
             const elapsed = (Date.now() - startTime) / 1000;
@@ -126,7 +124,7 @@ export default function GlobalAsciiBackground() {
                 const data = tctx.getImageData(0, 0, width, height).data;
 
                 ctxAscii.clearRect(0, 0, width, height);
-                ctxAscii.font = `${CELL_H}px monospace`;
+                ctxAscii.font = `bold ${CELL_H}px monospace`; // Bold for better "pop"
                 ctxAscii.textAlign = 'center';
                 ctxAscii.textBaseline = 'middle';
 
@@ -139,32 +137,41 @@ export default function GlobalAsciiBackground() {
                         const a = data[idx + 3];
                         const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 
-                        if (a > 20 && lum > 0.05) {
-                            const mx = Math.max(r, g, b, 1);
-                            const nr = (r / mx) * 255;
-                            const ng = (g / mx) * 255;
-                            const nb = (b / mx) * 255;
+                        // Hover logic
+                        const distToMouse = Math.sqrt((x - mouse.x) ** 2 + (y - mouse.y) ** 2);
+                        const hoverBoost = Math.max(0, 1 - distToMouse / 250);
 
-                            const pulse = 0.7 + Math.sin(elapsed * 1.5 + (x + y) * 0.005) * 0.3;
-                            const sweepPos = (elapsed * 250) % (width + height);
+                        if (a > 20 && lum > 0.05) {
+                            // High-vibrancy Color formula
+                            const mx = Math.max(r, g, b, 1);
+                            const nr = Math.min(255, (r / mx) * 255 * (1.2 + hoverBoost));
+                            const ng = Math.min(255, (g / mx) * 255 * (1.2 + hoverBoost));
+                            const nb = Math.min(255, (b / mx) * 255 * (1.2 + hoverBoost));
+
+                            const pulse = 0.6 + Math.sin(elapsed * 2 + (x + y) * 0.005) * 0.4;
+                            const sweepPos = (elapsed * 300) % (width + height);
                             const distToSweep = Math.abs(x + y - sweepPos);
-                            const sweepEffect = Math.max(1, 2 - distToSweep / 150);
+                            const sweepEffect = Math.max(1, 2.5 - distToSweep / 100);
 
                             const charIdx = Math.floor((1 - lum) * (ASCII_RAMP.length - 1));
                             const char = ASCII_RAMP[charIdx];
 
-                            ctxAscii.fillStyle = `rgba(${nr}, ${ng}, ${nb}, ${pulse * 0.5})`;
-                            if (sweepEffect > 1) {
-                                ctxAscii.fillStyle = `rgba(255, 255, 255, ${pulse * 0.8})`;
-                                ctxAscii.shadowBlur = 8;
-                                ctxAscii.shadowColor = "white";
+                            // Higher opacity for "popping" effect
+                            const baseAlpha = 0.4 + hoverBoost * 0.4;
+                            ctxAscii.fillStyle = `rgba(${nr}, ${ng}, ${nb}, ${pulse * baseAlpha})`;
+                            
+                            if (sweepEffect > 1 || hoverBoost > 0.5) {
+                                ctxAscii.fillStyle = `rgba(255, 255, 255, ${pulse * (0.6 + hoverBoost)})`;
+                                ctxAscii.shadowBlur = 10 + hoverBoost * 20;
+                                ctxAscii.shadowColor = `rgb(${nr}, ${ng}, ${nb})`;
                             } else {
                                 ctxAscii.shadowBlur = 0;
                             }
                             ctxAscii.fillText(char, x + CELL_W / 2, y + CELL_H / 2);
                         } else {
-                            // Subtler background dots for the global feel
-                            ctxAscii.fillStyle = 'rgba(40, 65, 100, 0.05)';
+                            // Subtler background dots
+                            const dotAlpha = 0.05 + hoverBoost * 0.1;
+                            ctxAscii.fillStyle = `rgba(100, 150, 255, ${dotAlpha})`;
                             ctxAscii.fillText('.', x + CELL_W / 2, y + CELL_H / 2);
                         }
                     }
@@ -177,6 +184,7 @@ export default function GlobalAsciiBackground() {
 
         return () => {
             window.removeEventListener('resize', resize);
+            window.removeEventListener('mousemove', onMouseMove);
             cancelAnimationFrame(animationFrameId);
             renderer.dispose();
             geometry.dispose();

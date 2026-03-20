@@ -1,5 +1,7 @@
 import { ArrowRight, Zap, Activity } from 'lucide-react';
 import Link from 'next/link';
+
+export default function Home() {
     return (
         <div className="flex-1 w-full max-w-7xl mx-auto p-6 md:p-12 flex flex-col justify-center relative">
             <header className="flex justify-between items-center mb-16 border-b border-white pb-6 relative z-10">

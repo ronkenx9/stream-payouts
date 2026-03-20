@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import AsciiBackground from '@/components/AsciiBackground';
 import { Play, Plus, Trash2, ArrowLeft, RefreshCw, Activity } from 'lucide-react';
 import Link from 'next/link';
 
@@ -108,7 +107,6 @@ export default function Dashboard() {
 
     return (
         <>
-            <AsciiBackground />
             <div className="flex-1 w-full max-w-7xl mx-auto p-4 md:p-8 flex flex-col font-mono text-sm leading-relaxed">
 
                 <header className="flex justify-between items-center mb-8 border-b border-white pb-4">
