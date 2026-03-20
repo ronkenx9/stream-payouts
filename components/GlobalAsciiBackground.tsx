@@ -112,6 +112,15 @@ export default function GlobalAsciiBackground() {
         };
         window.addEventListener('mousemove', onMouseMove);
 
+        const ctxAscii = asciiCanvas.getContext('2d', { willReadFrequently: true });
+        if (!ctxAscii) return;
+
+        const tempCanvas = document.createElement('canvas');
+        const tctx = tempCanvas.getContext('2d');
+
+        let animationFrameId: number;
+        let startTime = Date.now();
+
         const render = () => {
             const elapsed = (Date.now() - startTime) / 1000;
             globe.rotation.y += 0.003;
